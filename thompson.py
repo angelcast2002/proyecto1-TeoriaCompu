@@ -4,10 +4,11 @@ def base(caracter):
     return fragmento
 
 def concatenacion(fragmentoInicial, fragmentoFinal):
-    fragmento = {}
+    fragmento = []
     fragmento = fragmentoInicial
     fragmentoFinal[0][0] = fragmento[-1][-2]
-    fragmentoFinal[-1][-2] = len(fragmento) + len(fragmentoFinal)
+    max = ultimoEstado(fragmento)
+    fragmentoFinal[-1][-2] = max + 1
     fragmento = fragmento + fragmentoFinal
     for i in range(len(fragmento)):
         if i == len(fragmento) - 1:
@@ -60,17 +61,22 @@ def union(fragmento1, fragmento2):
     for i in range(len(fragmento1)):
         union.append(fragmento1[i])
 
-    union.append([0, 'ε', len(union)+1, False])
+    max = ultimoEstado(union)
+    max += 1
+    union.append([0, 'ε', max, False])
 
     for i in range(len(fragmento2)):
-        fragmento2[i][0] += len(union)
-        fragmento2[i][2] += len(union)
+        fragmento2[i][0] += max
+        fragmento2[i][2] += max
     
     for i in range(len(fragmento2)):
         union.append(fragmento2[i])
 
-    union.append([fragmento1[-1][2], 'ε', len(union) + 1, True])
-    union.append([fragmento2[-1][2], 'ε', len(union), True])
+    max = ultimoEstado(union)
+    max += 1
+
+    union.append([fragmento1[-1][2], 'ε', max, True])
+    union.append([fragmento2[-1][2], 'ε', max, True])
 
     for i in range(len(union)):
         if i == len(union) - 1 or i == len(union) - 2:
@@ -98,7 +104,12 @@ def kleene(fragmento):
     
     return kleene
     
-
+def ultimoEstado(fragmento):
+    max = 0
+    for i in range(len(fragmento)):
+        if fragmento[i][-2] > max:
+            max = fragmento[i][-2]
+    return max
 
 
 parte1 = base('a')
@@ -106,12 +117,24 @@ parte2 = base('b')
 parte3 = base('c')
 parte4 = base('d')
 
-# ejemplo = concatenacion(concatenacion(parte1, parte2), parte3)
+#ejemplo = concatenacion(concatenacion(parte1, parte2), parte3)
 
-ejemplo = union(parte1, parte2)
-ejemplo = union(ejemplo, parte3)
+#ejemplo = union(parte1, parte2)
+#ejemplo = union(ejemplo, parte3)
+# ejemplo = union(ejemplo, parte4)
 
-# ejemplo = concatenacion(kleene1, concatenacion1)
+#ejemplo = kleene(parte1)
+#ejemplo = concatenacion(ejemplo, parte2)
+
+# ejemplo1 = kleene(parte1)
+# ejemplo1 = concatenacion(ejemplo1, parte2)
+
+# ejemplo2 = kleene(parte3)
+# ejemplo2 = concatenacion(ejemplo2, parte4)
+
+# ejemplo = union(ejemplo1, ejemplo2)
+
+ejemplo = union(kleene(concatenacion(parte1, parte2)), parte3)
 
 print(ejemplo)
 
