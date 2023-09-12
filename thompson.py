@@ -111,30 +111,49 @@ def ultimoEstado(fragmento):
             max = fragmento[i][-2]
     return max
 
+def transicion(afn, estado, caracter):
+    trasiciones = [estado]
+    for i in range(len(afn)):
+        if (afn[i][0] == estado or afn[i][0] in trasiciones) and afn[i][1] in caracter:
+            if afn[i][-2] not in trasiciones: 
+                trasiciones.append(afn[i][-2])
+    if len(trasiciones) == 0:
+        return None
+    else:
+        return trasiciones
+
+'''
+def transicion(afn, estado, caracter):
+    transiciones = []
+    for i in range(len(afn)):
+        if afn[i][0] == estado and afn[i][1] in caracter:
+            transiciones.append(afn[i][-2])
+    if len(transiciones) == 0:
+        return None
+    else:
+        return transiciones'''
+
+def afnToAfd(afn, caracteres):
+    afd = []
+    afd.append(transicion(afn, afn[0][0], caracteres[0]))
+    for i in range(len(caracteres)):
+        newTransicion = transicion(afn, afn[0][0], ['ε',caracteres[i]])
+        if newTransicion is not None and not newTransicion in afd:
+            afd.append(newTransicion)
+        elif newTransicion is None and not newTransicion in afd:
+            afd.append(None)
+    #for i in range(len(caracteres)):
+    #    afd.append(transicion(afn, afn[0][0], caracteres[i]))
+    return afd
+
 
 parte1 = base('a')
 parte2 = base('b')
 parte3 = base('c')
 parte4 = base('d')
 
-#ejemplo = concatenacion(concatenacion(parte1, parte2), parte3)
-
-#ejemplo = union(parte1, parte2)
-#ejemplo = union(ejemplo, parte3)
-# ejemplo = union(ejemplo, parte4)
-
-#ejemplo = kleene(parte1)
-#ejemplo = concatenacion(ejemplo, parte2)
-
-# ejemplo1 = kleene(parte1)
-# ejemplo1 = concatenacion(ejemplo1, parte2)
-
-# ejemplo2 = kleene(parte3)
-# ejemplo2 = concatenacion(ejemplo2, parte4)
-
-# ejemplo = union(ejemplo1, ejemplo2)
-
 ejemplo = union(kleene(concatenacion(parte1, parte2)), parte3)
 
-print(ejemplo)
-
+#print(ejemplo)
+caracteres = ['ε', 'a', 'b', 'c']
+print(afnToAfd(ejemplo, caracteres))
