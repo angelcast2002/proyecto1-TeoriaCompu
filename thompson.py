@@ -98,9 +98,18 @@ def kleene(fragmento):
     for i in range(len(fragmento)):
         kleene.append(fragmento[i])
     
-    kleene.append([kleene[-1][0], 'ε', len(kleene), True])
+    max = ultimoEstado(kleene)
+    
+    kleene.append([kleene[-1][0], 'ε', max + 1, True])
 
-    kleene.append([0, 'ε', len(kleene) - 1, True])
+    kleene.append([0, 'ε', max + 1, True])
+
+    max = ultimoEstado(kleene)
+    for i in range(len(kleene)):
+        if max == kleene[i][2]:
+            kleene[i][-1] = True
+        else:
+            kleene[i][-1] = False
     
     return kleene
     
@@ -152,8 +161,11 @@ parte2 = base('b')
 parte3 = base('c')
 parte4 = base('d')
 
-ejemplo = union(kleene(concatenacion(parte1, parte2)), parte3)
+parentesis = kleene(union(parte3, parte4))
+#concatenacion1 = concatenacion(parte4, parte3)
 
-#print(ejemplo)
+# ejemplo = concatenacion(parentesis, concatenacion1)
+
+print(parentesis)
 caracteres = ['ε', 'a', 'b', 'c']
-print(afnToAfd(ejemplo, caracteres))
+#print(afnToAfd(ejemplo, caracteres))
