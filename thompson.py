@@ -110,6 +110,10 @@ def transicion(afn, estado):
 
 def afnToAfd(afn, caracteres):
     afd = []
+    estadosAcepatadosAFN = []
+    for i in range(len(afn)):
+        if afn[i][-1] == True:
+            estadosAcepatadosAFN.append(afn[i][-2])
     afd.append(transicion(afn, [afn[0][0]]))
     afdTransiciones = []
     i = 0
@@ -120,15 +124,26 @@ def afnToAfd(afn, caracteres):
                 if caracteres[j] == afn[k][1] and afn[k][0] in afd[i]:
                     estadosIniciales.append(afn[k][2])
             newState = transicion(afn, estadosIniciales)
-            afdTransiciones.append([afd[i], caracteres[j], newState])
+            if newState != []:
+                afdTransiciones.append([afd[i], caracteres[j], newState])
             if newState not in afd:
                 afd.append(newState)
         i += 1
+    
     for i in range(len(afdTransiciones)):
         afdTransiciones[i][0].sort()
         afdTransiciones[i][2].sort()
+
+    estadosAcepatadosAFD = []
+    for i in range(len(afdTransiciones)):
+        for j in range(len(afdTransiciones[i][-1])):
+            if afdTransiciones[i][-1][j] in estadosAcepatadosAFN:
+                if afdTransiciones[i][0] not in estadosAcepatadosAFD:
+                    estadosAcepatadosAFD.append(afdTransiciones[i][0])
+                    if afdTransiciones[i][-1] not in estadosAcepatadosAFD:
+                        estadosAcepatadosAFD.append(afdTransiciones[i][-1])
     
-    return afdTransiciones
+    return afdTransiciones, estadosAcepatadosAFD
 
 def regexToCaracteres(regexp):
     caracteres = []
@@ -138,15 +153,36 @@ def regexToCaracteres(regexp):
     return caracteres
 
 def main():
-   regexp = input("Expresión regular en notacion postfix: ")
-   caracteres = regexToCaracteres(regexp)
-   print("Caracteres: ", caracteres)
+    operandos = []
+    regexp = input("Expresión regular en notacion postfix: ")
+    caracteres = regexToCaracteres(regexp)
+    for i in range(len(regexp)):
+        if regexp[i].isalnum():
+            operandos.append(base(regexp[i]))
+        elif regexp[i] == '+':
+            operando2 = operandos.pop()
+            operando1 = operandos.pop()
+            operandos.append(union(operando1, operando2))
+        elif regexp[i] == '.':
+            operando2 = operandos.pop()
+            operando1 = operandos.pop()
+            operandos.append(concatenacion(operando1, operando2))
+        elif regexp[i] == '*':
+            operandos.append(kleene(operandos.pop()))
+    
+    afd, estadosAceptados = afnToAfd(operandos[0], caracteres)
+    print('AFD -->')
+    for i in range(len(afd)):
+        print(afd[i])
+
+    print('Estados aceptados -->', estadosAceptados)
+
 
 if __name__ == "__main__":
     main()
 
 
-'''parte1 = base('a')
+"""parte1 = base('a')
 parte2 = base('b')
 parte3 = base('c')
 parte4 = base('d')
@@ -158,10 +194,11 @@ ejemplo = concatenacion(parentesis, parte4)
 ejemplo = concatenacion(ejemplo, parte3)
 
 #ejemplo = concatenacion(parentesis, concatenacion1)
-
-print(ejemplo)
 caracteres = ['c', 'd']
-afd = afnToAfd(ejemplo, caracteres)
+afd, estadosAceptados = afnToAfd(ejemplo, caracteres)
 
+print('AFD -->')
 for i in range(len(afd)):
-    print(afd[i])'''
+    print(afd[i])
+
+print('Estados aceptados -->', estadosAceptados)"""

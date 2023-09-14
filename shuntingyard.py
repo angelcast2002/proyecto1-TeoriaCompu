@@ -39,12 +39,13 @@ def setConcatenaciones(regex):
             esCerradura = (regex[i].isalnum() or regex[i] == '(' or regex[i] == ':') and regex[i - 1] == '*'
             esParentesisCierre = (regex[i].isalnum() or regex[i] == ':') and regex[i - 1] == ')'
             entreParentesis = regex[i] == '(' and regex[i - 1] == ')'
+            esParentesisApertura2 = regex[i] == '(' and regex[i - 1] != regex[- 1] and regex[i - 1].isalnum()
             if regex[i - 2] != regex[- 1]:
                 esParentesisApertura = (regex[i].isalnum() or regex[i] == ':') and regex[i - 1] == '(' and (regex[i - 2].isalnum() or regex[i - 2] == ':')
             else:
                 esParentesisApertura = False
             
-            if (esAlfaNum or esCerradura or esParentesisCierre or esParentesisApertura or entreParentesis):
+            if (esAlfaNum or esCerradura or esParentesisCierre or esParentesisApertura or entreParentesis or esParentesisApertura2):
                 regex = regex[:i] + '.' + regex[i:]
                 i = 0
         i += 1
@@ -55,5 +56,6 @@ def setConcatenaciones(regex):
 # Ejemplo de uso 
 expresion_infija = input("Expresión en notación infija: ")
 NewExpresion = setConcatenaciones(expresion_infija)
+print(NewExpresion)
 expresion_postfija = shuntingYard(NewExpresion)
 print("Expresión en notación postfija:", expresion_postfija)
