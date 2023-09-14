@@ -8,9 +8,12 @@ def concatenacion(fragmentoInicial, fragmentoFinal):
     for i in range(len(fragmentoInicial)):
         fragmento.append(fragmentoInicial[i][:])
     valor = fragmento[-1][2]
-    fragmentoFinal[0][0] = valor
-    max = ultimoEstado(fragmento)
-    fragmentoFinal[-1][-2] = max + 1
+    for i in range(len(fragmentoFinal)):
+        if i == 0:
+            fragmentoFinal[i][0] = valor
+        else:
+            fragmentoFinal[i][0] = fragmentoFinal[i - 1][-2]
+        fragmentoFinal[i][2] = fragmentoFinal[i][0] + 1
     for i in range(len(fragmentoFinal)):
         fragmento.append(fragmentoFinal[i])
     for i in range(len(fragmento)):
@@ -153,6 +156,7 @@ def transicion(afn, estado, caracter):
 def afnToAfd(afn, caracteres):
     afd = []
     afd.append(transicion(afn, [afn[0][0]]))
+    afdTransiciones = []
     i = 0
     while i < len(afd):
         for j in range(len(caracteres)):
@@ -161,17 +165,33 @@ def afnToAfd(afn, caracteres):
                 if caracteres[j] == afn[k][1] and afn[k][0] in afd[i]:
                     estadosIniciales.append(afn[k][2])
             newState = transicion(afn, estadosIniciales)
+            afdTransiciones.append([afd[i], caracteres[j], newState])
             if newState not in afd:
                 afd.append(newState)
         i += 1
+    for i in range(len(afdTransiciones)):
+        afdTransiciones[i][0].sort()
+        afdTransiciones[i][2].sort()
+    
+    return afdTransiciones
 
-            
-    #afd.append(transicion(afn, [3], caracteres[0]))
-    #afd.append(transicion(afn, [5,8], caracteres[0]))
-    return afd
+def regexToCaracteres(regexp):
+    caracteres = []
+    for i in regexp:
+        if i.isalnum() and i not in caracteres:
+            caracteres.append(i)
+    return caracteres
+
+def main():
+   regexp = input("Expresión regular en notacion postfix: ")
+   caracteres = regexToCaracteres(regexp)
+   print("Caracteres: ", caracteres)
+
+if __name__ == "__main__":
+    main()
 
 
-parte1 = base('a')
+'''parte1 = base('a')
 parte2 = base('b')
 parte3 = base('c')
 parte4 = base('d')
@@ -186,4 +206,7 @@ ejemplo = concatenacion(ejemplo, parte3)
 
 print(ejemplo)
 caracteres = ['c', 'd']
-print(afnToAfd(ejemplo, caracteres))
+afd = afnToAfd(ejemplo, caracteres)
+
+for i in range(len(afd)):
+    print(afd[i])'''
