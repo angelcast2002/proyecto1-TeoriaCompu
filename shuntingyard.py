@@ -1,5 +1,5 @@
 def shunting_yard(expresion):
-    precedencia = {'+': 1, '*': 2}
+    precedencia = {'+': 2, '*': 1}
     salida = []
     pila_operadores = []
     utlimoToken = []

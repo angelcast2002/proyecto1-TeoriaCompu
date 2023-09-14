@@ -23,40 +23,6 @@ def concatenacion(fragmentoInicial, fragmentoFinal):
             fragmento[i][-1] = False
     return fragmento
 
-"""def union(fragmento1, fragmento2):
-    union = []
-    union.append([0, 'ε', 1, False])
-    for i in range(len(fragmento1)):
-        fragmento1[i][0] = union[-1][-2]
-        fragmento1[i][2] = union[-1][-2] + 1
-    
-    union = union + fragmento1
-    ultimoEstadoFrag1 = union[-1][-2]
-
-    union.append([0, 'ε', union[-1][-2] + 1, False])
-
-    for i in range(len(fragmento2)):
-        fragmento2[i][0] = union[-1][-2]
-        fragmento2[i][2] = union[-1][-2] + 1
-
-    union = union + fragmento2
-    ultimoEstadoFrag2 = union[-1][-2]
-
-    largoSemiFinal = union[-1][-2]
-
-    union.append([ultimoEstadoFrag1, 'ε', largoSemiFinal + 1, True])
-    union.append([ultimoEstadoFrag2, 'ε', largoSemiFinal + 1, True])
-
-    for i in range(len(union)):
-        condicion = ultimoEstadoFrag1 == union[i][0] and largoSemiFinal + 1 == union[i][-2] or ultimoEstadoFrag2 == union[i][-2] and largoSemiFinal + 1 == union[i][-2]
-        if condicion:
-            union[i][-1] = True
-        else:
-            union[i][-1] = False
-
-    
-    return union"""
-
 def union(fragmento1, fragmento2):
     union = []
     union.append([0, 'ε', 1, False])
@@ -141,17 +107,6 @@ def transicion(afn, estado):
             
         i += 1
     return trasiciones
-
-'''
-def transicion(afn, estado, caracter):
-    transiciones = []
-    for i in range(len(afn)):
-        if afn[i][0] == estado and afn[i][1] in caracter:
-            transiciones.append(afn[i][-2])
-    if len(transiciones) == 0:
-        return None
-    else:
-        return transiciones'''
 
 def afnToAfd(afn, caracteres):
     afd = []
