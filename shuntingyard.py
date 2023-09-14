@@ -1,38 +1,59 @@
-def shunting_yard(expresion):
-    precedencia = {'+': 2, '*': 1}
-    salida = []
-    pila_operadores = []
-    utlimoToken = []
+def shuntingYard(re_str):
+    precedence_map = {
+        '(': 1,
+        '+': 2,
+        '.': 3,
+        '*': 4,
+    }
     
-    for token in expresion:
-        if token.isalnum() or token == 'ε':
-            if utlimoToken and utlimoToken[-1].isalnum():
-                salida.append(token)
-                salida.append('.')
-            else:
-                salida.append(token)
-        elif token in precedencia:
-            while pila_operadores and pila_operadores[-1] in precedencia and precedencia[token] <= precedencia[pila_operadores[-1]]:
-                salida.append(pila_operadores.pop())
-            pila_operadores.append(token)
-        elif token == '(':
-            pila_operadores.append(token)
-        elif token == ')':
-            while pila_operadores and pila_operadores[-1] != '(':
-                salida.append(pila_operadores.pop())
-            if pila_operadores and pila_operadores[-1] == '(' and not len(pila_operadores) > 1 :
-                salida.append(".")
-                pila_operadores.pop()
-            elif pila_operadores:
-                pila_operadores.pop()
-        utlimoToken.append(token)
+    output = []
+    stack = []
     
-    while pila_operadores:
-        salida.append(pila_operadores.pop())
+    for char in re_str:
+        if char == '(':
+            stack.append(char)
+        elif char == ')':
+            while stack and stack[-1] != '(':
+                output.append(stack.pop())
+            stack.pop()  # Pop '('
+        elif char in precedence_map:
+            while stack and precedence_map.get(stack[-1], 0) >= precedence_map[char]:
+                output.append(stack.pop())
+            stack.append(char)
+        else:
+            output.append(char)
     
-    return ''.join(salida)
+    while stack:
+        output.append(stack.pop())
+    
+    return ''.join(output)
 
-# Ejemplo de uso
+
+def setConcatenaciones(regex):
+    i = 0
+    while i < len(regex):
+        if i == 0:
+            pass
+        else:
+            esAlfaNum = (regex[i].isalnum() or regex[i] == ':') and (regex[i - 1].isalnum() or regex[i - 1] == ':')
+            esCerradura = (regex[i].isalnum() or regex[i] == '(' or regex[i] == ':') and regex[i - 1] == '*'
+            esParentesisCierre = (regex[i].isalnum() or regex[i] == ':') and regex[i - 1] == ')'
+            entreParentesis = regex[i] == '(' and regex[i - 1] == ')'
+            if regex[i - 2] != regex[- 1]:
+                esParentesisApertura = (regex[i].isalnum() or regex[i] == ':') and regex[i - 1] == '(' and (regex[i - 2].isalnum() or regex[i - 2] == ':')
+            else:
+                esParentesisApertura = False
+            
+            if (esAlfaNum or esCerradura or esParentesisCierre or esParentesisApertura or entreParentesis):
+                regex = regex[:i] + '.' + regex[i:]
+                i = 0
+        i += 1
+
+    return regex
+
+# Cadena Vacia = ':'
+# Ejemplo de uso 
 expresion_infija = input("Expresión en notación infija: ")
-expresion_postfija = shunting_yard(expresion_infija)
+NewExpresion = setConcatenaciones(expresion_infija)
+expresion_postfija = shuntingYard(NewExpresion)
 print("Expresión en notación postfija:", expresion_postfija)
