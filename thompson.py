@@ -5,11 +5,14 @@ def base(caracter):
 
 def concatenacion(fragmentoInicial, fragmentoFinal):
     fragmento = []
-    fragmento = fragmentoInicial
-    fragmentoFinal[0][0] = fragmento[-1][-2]
+    for i in range(len(fragmentoInicial)):
+        fragmento.append(fragmentoInicial[i][:])
+    valor = fragmento[-1][2]
+    fragmentoFinal[0][0] = valor
     max = ultimoEstado(fragmento)
     fragmentoFinal[-1][-2] = max + 1
-    fragmento = fragmento + fragmentoFinal
+    for i in range(len(fragmentoFinal)):
+        fragmento.append(fragmentoFinal[i])
     for i in range(len(fragmento)):
         if i == len(fragmento) - 1:
             fragmento[i][-1] = True
@@ -59,7 +62,7 @@ def union(fragmento1, fragmento2):
         fragmento1[i][2] += 1
 
     for i in range(len(fragmento1)):
-        union.append(fragmento1[i])
+        union.append(fragmento1[i][:])
 
     max = ultimoEstado(union)
     max += 1
@@ -70,7 +73,7 @@ def union(fragmento1, fragmento2):
         fragmento2[i][2] += max
     
     for i in range(len(fragmento2)):
-        union.append(fragmento2[i])
+        union.append(fragmento2[i][:])
 
     max = ultimoEstado(union)
     max += 1
@@ -90,13 +93,14 @@ def kleene(fragmento):
     kleene = []
     kleene.append([0, 'ε', 1, False])
 
+    fragmento = fragmento[:]
     fragmento.append([fragmento[-1][2], 'ε', fragmento[0][0], False])
     for i in range(len(fragmento)):
         fragmento[i][0] += 1
         fragmento[i][2] += 1
     
     for i in range(len(fragmento)):
-        kleene.append(fragmento[i])
+        kleene.append(fragmento[i][:])
     
     max = ultimoEstado(kleene)
     
@@ -120,16 +124,20 @@ def ultimoEstado(fragmento):
             max = fragmento[i][-2]
     return max
 
-def transicion(afn, estado, caracter):
-    trasiciones = [estado]
-    for i in range(len(afn)):
-        if (afn[i][0] == estado or afn[i][0] in trasiciones) and afn[i][1] in caracter:
+def transicion(afn, estado):
+    trasiciones = []
+    for i in range(len(estado)):
+        trasiciones.append(estado[i])
+    
+    i = 0
+    while i < len(afn):
+        if (afn[i][0] == estado or afn[i][0] in trasiciones) and afn[i][1] == 'ε':
             if afn[i][-2] not in trasiciones: 
                 trasiciones.append(afn[i][-2])
-    if len(trasiciones) == 0:
-        return None
-    else:
-        return trasiciones
+                i = 0
+            
+        i += 1
+    return trasiciones
 
 '''
 def transicion(afn, estado, caracter):
@@ -144,15 +152,22 @@ def transicion(afn, estado, caracter):
 
 def afnToAfd(afn, caracteres):
     afd = []
-    afd.append(transicion(afn, afn[0][0], caracteres[0]))
-    for i in range(len(caracteres)):
-        newTransicion = transicion(afn, afn[0][0], ['ε',caracteres[i]])
-        if newTransicion is not None and not newTransicion in afd:
-            afd.append(newTransicion)
-        elif newTransicion is None and not newTransicion in afd:
-            afd.append(None)
-    #for i in range(len(caracteres)):
-    #    afd.append(transicion(afn, afn[0][0], caracteres[i]))
+    afd.append(transicion(afn, [afn[0][0]]))
+    i = 0
+    while i < len(afd):
+        for j in range(len(caracteres)):
+            estadosIniciales = []
+            for k in range(len(afn)):
+                if caracteres[j] == afn[k][1] and afn[k][0] in afd[i]:
+                    estadosIniciales.append(afn[k][2])
+            newState = transicion(afn, estadosIniciales)
+            if newState not in afd:
+                afd.append(newState)
+        i += 1
+
+            
+    #afd.append(transicion(afn, [3], caracteres[0]))
+    #afd.append(transicion(afn, [5,8], caracteres[0]))
     return afd
 
 
@@ -162,10 +177,13 @@ parte3 = base('c')
 parte4 = base('d')
 
 parentesis = kleene(union(parte3, parte4))
-#concatenacion1 = concatenacion(parte4, parte3)
+concatenacion1 = concatenacion(parte4, parte3)
 
-# ejemplo = concatenacion(parentesis, concatenacion1)
+ejemplo = concatenacion(parentesis, parte4)
+ejemplo = concatenacion(ejemplo, parte3)
 
-print(parentesis)
-caracteres = ['ε', 'a', 'b', 'c']
-#print(afnToAfd(ejemplo, caracteres))
+#ejemplo = concatenacion(parentesis, concatenacion1)
+
+print(ejemplo)
+caracteres = ['c', 'd']
+print(afnToAfd(ejemplo, caracteres))
