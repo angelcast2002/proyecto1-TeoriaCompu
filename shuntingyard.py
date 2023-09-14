@@ -14,21 +14,14 @@ def shunting_yard(expresion):
         elif token in precedencia:
             while pila_operadores and pila_operadores[-1] in precedencia and precedencia[token] <= precedencia[pila_operadores[-1]]:
                 salida.append(pila_operadores.pop())
-            if token == '*':
-                if utlimoToken and utlimoToken[-1] == ')':
-                    salida.append(token)
-                    salida.append('.')
-                else:
-                    salida.append(token)
-            else:
-                pila_operadores.append(token)
+            pila_operadores.append(token)
         elif token == '(':
             pila_operadores.append(token)
         elif token == ')':
             while pila_operadores and pila_operadores[-1] != '(':
                 salida.append(pila_operadores.pop())
             if pila_operadores and pila_operadores[-1] == '(' and not len(pila_operadores) > 1 :
-                #salida.append(".")
+                salida.append(".")
                 pila_operadores.pop()
             elif pila_operadores:
                 pila_operadores.pop()
