@@ -5,17 +5,24 @@ def base(caracter):
 
 def concatenacion(fragmentoInicial, fragmentoFinal):
     fragmento = []
+    esConcatenacion = False
     for i in range(len(fragmentoInicial)):
         fragmento.append(fragmentoInicial[i][:])
-    valor = fragmento[-1][2]
     for i in range(len(fragmentoFinal)):
-        if i == 0:
-            fragmentoFinal[i][0] = valor
-        else:
-            fragmentoFinal[i][0] = fragmentoFinal[i - 1][-2]
-        fragmentoFinal[i][2] = fragmentoFinal[i][0] + 1
-    for i in range(len(fragmentoFinal)):
-        fragmento.append(fragmentoFinal[i])
+        if 'ε' not in fragmentoFinal[i]:
+            esConcatenacion = True
+    if esConcatenacion:   
+        valor = fragmento[-1][2]
+        for i in range(len(fragmentoFinal)):
+            if i == 0:
+                fragmentoFinal[i][0] = valor
+            else:
+                fragmentoFinal[i][0] = fragmentoFinal[i - 1][-2]
+            fragmentoFinal[i][2] = fragmentoFinal[i][0] + 1
+        for i in range(len(fragmentoFinal)):
+            fragmento.append(fragmentoFinal[i])
+    else:
+        pass
     for i in range(len(fragmento)):
         if i == len(fragmento) - 1:
             fragmento[i][-1] = True
@@ -153,7 +160,13 @@ def regexToCaracteres(regexp):
     return caracteres
 
 def main():
-    operandos = []
+    # correcto
+    print(concatenacion(base('a'), concatenacion(base('a'), base('b'))))
+    # incorrecto
+    #print(concatenacion(base('a'), kleene(base('b'))))
+    # incorrecto
+    #print(concatenacion(base('a'), union(base('b'), base('c'))))
+    """operandos = []
     regexp = input("Expresión regular en notacion postfix: ")
     caracteres = regexToCaracteres(regexp)
     for i in range(len(regexp)):
@@ -175,7 +188,7 @@ def main():
     for i in range(len(afd)):
         print(afd[i])
 
-    print('Estados aceptados -->', estadosAceptados)
+    print('Estados aceptados -->', estadosAceptados)"""
 
 
 if __name__ == "__main__":
