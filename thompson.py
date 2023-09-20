@@ -161,12 +161,12 @@ def regexToCaracteres(regexp):
 
 def main():
     # correcto
-    print(concatenacion(base('a'), concatenacion(base('a'), base('b'))))
+    # print(concatenacion(base('a'), concatenacion(base('a'), base('b'))))
     # incorrecto
     #print(concatenacion(base('a'), kleene(base('b'))))
     # incorrecto
     #print(concatenacion(base('a'), union(base('b'), base('c'))))
-    """operandos = []
+    operandos = []
     regexp = input("Expresión regular en notacion postfix: ")
     caracteres = regexToCaracteres(regexp)
     for i in range(len(regexp)):
@@ -182,13 +182,26 @@ def main():
             operandos.append(concatenacion(operando1, operando2))
         elif regexp[i] == '*':
             operandos.append(kleene(operandos.pop()))
+
+    print('AFN -->')
+    print(operandos[0])
+
+    with open('proyecto1-TeoriaCompu/afn.txt', 'w') as f:
+        f.write(str(operandos[0]))
     
     afd, estadosAceptados = afnToAfd(operandos[0], caracteres)
+
+    with open('proyecto1-TeoriaCompu/afd.txt', 'w') as d:
+        d.write(str(afd))
+        d.write('\n')
+        d.write('Estados aceptados --> ')
+        d.write(str(estadosAceptados))
+    
     print('AFD -->')
     for i in range(len(afd)):
         print(afd[i])
 
-    print('Estados aceptados -->', estadosAceptados)"""
+    print('Estados aceptados -->', estadosAceptados)
 
 
 if __name__ == "__main__":
