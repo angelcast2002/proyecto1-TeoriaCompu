@@ -242,6 +242,31 @@ class RegexToNFA:
         self.nfa = self.automata.pop()
         self.nfa.simbolo = simbolo
 
+    def AnalysisNFA(self, string):
+        print('\n------------\nSimulacion de NFA')
+        start_time = time.time()
+        string = string.replace('@', epsilon)
+        curst = self.nfa.estadoInicial
+        curst = self.nfa.cerraduraEpsilon(curst)
+
+        for ch in string:
+            if ch == epsilon:
+                continue
+            st = self.nfa.getMovimiento(curst, ch)
+            print(f"Estados de la cerradura: {st}, Simbolo de entrada: {ch}, Siguiente estado: {st}")
+            curst = set()
+            for s in st:
+                curst = curst.union(self.nfa.cerraduraEpsilon(s))
+            print(f"Estados de la cerradura: {curst}, Simbolo de entrada: {epsilon}, Siguiente estado: {curst}")
+        if len(curst.intersection(self.nfa.estadosAceptados)):
+            print(f"\nCadena '{string}' aceptada.")
+        else:
+            print(f"\nCadena '{string}' no aceptada. Se detiene en el estado {curst}.")
+        elapsed_time = time.time() - start_time
+        print(f"Tiempo transcurrido de simulacion: {elapsed_time} segundos\n")
+        return len(curst.intersection(self.nfa.estadosAceptados))
+
+
     def mostrarNFA(self):
         self.nfa.display('nfa.gv', 'nondeterministic_finite_state_machine')
 
@@ -372,6 +397,7 @@ class NFAToDFA:
             self.minDFA = self.dfa.actualizarEstadosIguales(equal, pos)
 
     def Analysis(self, string):
+        print("------------\nSimulacion de DFA")
         start_time = time.time()
         string = string.replace('@', epsilon)
         curst = self.dfa.estadoInicial
@@ -388,15 +414,16 @@ class NFAToDFA:
             print(f"Estado actual: {curst}, Simbolo de entrada: {ch}, Siguiente estado: {next_state}")
             curst = next_state
         if curst in self.dfa.estadosAceptados:
-            print(f"Cadena '{string}' aceptada.")
+            print(f"\nCadena '{string}' aceptada.")
         else:
-            print(f"Cadena '{string}' no aceptada. Se detiene en el estado {curst}.")
+            print(f"\nCadena '{string}' no aceptada. Se detiene en el estado {curst}.")
         elapsed_time = time.time() - start_time
-        print(f"Tiempo transcurrido de simulacion: {elapsed_time} segundos")
+        print(f"Tiempo transcurrido de simulacion: {elapsed_time} segundos\n")
         return curst in self.dfa.estadosAceptados
 
 
     def AnalysisMinimizedDFA(self, string):
+        print("------------\nSimulacion de Minimized DFA")
         start_time = time.time()
         string = string.replace('@', epsilon)
         curst = self.minDFA.estadoInicial
@@ -413,11 +440,11 @@ class NFAToDFA:
             print(f"Estado actual: {curst}, Simbolo de entrada: {ch}, Siguiente estado: {next_state}")
             curst = next_state
         if curst in self.minDFA.estadosAceptados:
-            print(f"Cadena '{string}' aceptada.")
+            print(f"\nCadena '{string}' aceptada.")
         else:
-            print(f"Cadena '{string}' no aceptada. Se detiene en el estado {curst}.")
+            print(f"\nCadena '{string}' no aceptada. Se detiene en el estado {curst}.")
         elapsed_time = time.time() - start_time
-        print(f"Tiempo transcurrido de simulacion: {elapsed_time} segundos")
+        print(f"Tiempo transcurrido de simulacion: {elapsed_time} segundos\n")
         return curst in self.minDFA.estadosAceptados
 
 def write_to_file(file_name, data):
@@ -464,13 +491,17 @@ if __name__ == '__main__':
     while True:
         try:
             s = input('Ingrese una cadena para ver si es aceptada o no: ')
+            if a.AnalysisNFA(s):
+                print('Aceptada por NFA\n')
+            else:
+                print('No aceptada por NFA\n')
             if b.Analysis(s):
-                print('Aceptada por DFA')
+                print('Aceptada por DFA\n')
             else:
-                print('No aceptada por DFA')
+                print('No aceptada por DFA\n')
             if b.AnalysisMinimizedDFA(s):
-                print('Aceptada por Minimized DFA')
+                print('Aceptada por Minimized DFA\n')
             else:
-                print('No aceptada por Minimized DFA')
+                print('No aceptada por Minimized DFA\n')
         except EOFError:
             break
