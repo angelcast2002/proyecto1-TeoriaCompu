@@ -1,0 +1,189 @@
+Clase Automata:
+
+Atributos:
+estados: un conjunto de estados (los estados se guardan como numeros)
+simbolo: un conjunto de simbolos (los simbolos que se usan para las transiciones)
+transiciones: un diccionario de diccionarios que tiene las transiciones de estados.
+La estructura es:
+{
+	1: {2: {'a','b'}, 3: {'a'}},
+	4: {5: {'a'}}
+}
+
+Esto quiere decir que del estado 1 se va hacia el 2 usando a y b, y al estado 3 usando a y que del estado 4 va al estado 5 usando a.
+
+estadoInicial
+estadosAceptados: estados de aceptacion
+
+iniciarAutomata: esta funcion se encarga de asignar un estado como inicial y se agrega al conjunto de estados del automata.
+
+aceptarEstado: se le pasa un estado y verifica si es un entero, de ser asi, crea una lista con este estado para poder iterar sobre este parametro, ya sea un estado o una lista de estados.
+El loop itera sobre el parametro (que puede ser un estado o varios) y verifica si el estado no esta en los estados de aceptacion, si no esta, se agrega a los estados de aceptacion.
+
+crearTransicion: se le pasa el estado de donde parte (desdeEstado), el estado al que va (haciaEstado) y el simbolo de transicion (inputch). 
+> Se le agregan estos dos estados a la lista de estados del automata. 
+> Luego, chequea si este estado del que parte ya esta como llave en las transiciones y que exista el estado objetivo como llave en el diccionario del estado fuente.
+> Si existe la transicion actualiza la transicion uniendo los simbolos que ya existian con el nuevo simbolo de transicion. Ej:
+{
+	1: {2: {'a'}}
+}
+1 va a 2 existe pero esta vez con b, entonces:
+{
+	1: {2: {'a','b'}}
+}
+> Si no existe la transicion, se crea. Ejemplo de 1 a 2 con 'b':
+{ }
+{ 
+	1: {2: {'a'}}
+}
+
+guardarTransiciones: El primer loop itera por cada estado fuente y estados objetivos, y adentro itera por cada estado que exista adentro del diccionario de estado objetivo (los estados a los que va desde el objetivo), para cada estado llama la funcion anterior, donde pasa desdeEstado como el estado fuente, estado como el estado objetivo y haciaEstados[estado] como el simbolo que hace la transicion.
+
+
+actualizarEstados: esta funcion es algo complicada. Basicamente toma un entero que es el numero inicial, es decir, del estado del que se va a partir. En el primer loop, itera por cada estado en la lista de estados del automata que llama a esta funcion, que luego le asignara un nuevo estado al diccionario de translations (este diccionario se usara para mapear los estados viejos a los nuevos). Por eso startnum incrementa por 1.
+La funcion crea una nueva instancia de un Automata, donde crea el estado inicial usando nuevo estado que corresponde al estado inicial del automata original y toma como estado de aceptacion de este nuevo automata el PRIMER estado de aceptacion del automata original.
+> Luego el loop itera entre las transiciones del automata original, aqui manda a crear o actualizar las transiciones del automata "actualizar"
+> Por ultimo retorna una lista con el automata nuevo y el nuevo numero inicial
+
+(Ahora nos saltaremos a RegexToNFA porque asi se entiende como se usan estas funciones descritas anteriormente)
+
+Clase RegexToNFA:
+
+Atributos:
+regex: el regex que se convertira a NFA
+crearNFA: crea el NFA desde el regex
+
+
+compPrecedencia: esta funcion solo le asigna numeros a cada operados para ver su orden de prioridad para el procesamiento de postfix.
+
+Para las siguientes funciones, cabe aclarar que cada una devolvera un automata, los cuales son: automata basico (a->b), una union (a|b), una concatenacion (ab) o una estrella de kleene (a*).
+
+handleSimbolo: esta funcion hace un automata BASICO, es decir de solo 2 estados.
+> Primero crea el estado del que parte (primerEstado) y al que va (segundoEstado)
+> Se crea una instancia de AUTOMATA en el cual se le pasara el simbolo usado para la transicion (ej.: a,b,etc.)
+> Se inicia el automata con el primer estado
+> Se acepta el segundo estado
+> Crea la transicion del primer estado al segundo usando el simbolo que se le ha pasado. Este usa la funcion crearTransicion
+> Devuelve el automata basico
+
+handleUnion: Esta funcion toma dos automatas basicos (a y b).
+> Llama la funcion actualizarEstados donde el automata 'a' empieza con 2 y guarda el resultado [a, m1]. Esto hara que a actualice sus estados y se obtenga el ultimo numero en el que termina 'a'.
+> Llama la funcion actualizarEstados donde el automata 'b' empieza con el numero en el que termina 'a' y guarda el resultado [b, m2]. Esto hara que a actualice sus estados y se obtenga el ultimo numero en el que termina 'b'.
+> Se crean el primer estado y al que sigue, usando 1 y m2-1 (al actualizar estados, el numero en el que terminan es n+1 donde n es el numero de estados del NFA, por eso el siguiente estado es m2-1)
+> Se crea una instancia de un automata (unionFA) en el cual se hace la union de los simbolos de 'a' y de 'b'. Por lo que se actualizan los simbolos del automata.
+> Se inicia el automata y se toma el siguiente estado como estado de aceptacion
+> Se crea la transicion, que parte desde el estado inicial de unionFA y va hacia los estados iniciales de 'a' y 'b' utilizando epsilon.
+> Se guardan las transiciones de los automatas 'a' y 'b' en las transiciones de unionFA.
+> Se devuelve el automata que es la union de 'a' y 'b'
+
+handleConcat: Esta funcion toma dos automatas basicos (a y b).
+> Llama la funcion actualizarEstados en el autómata 'a' con un valor de inicio de 1, y guarda el resultado en [a, m1]. Esto hara que a actualice sus estados y se obtenga el ultimo numero en el que termina 'a'.
+> Llama la funcion actualizarEstados en el autómata 'b' con m1 como valor de inicio, y el resultado se guarda en [b, m2]. Esto hara que a actualice sus estados y se obtenga el ultimo numero en el que termina 'b'.
+> Se crean el primer estado y al que sigue, usando 1 y m2-1 (al actualizar estados, el numero en el que terminan es n+1 donde n es el numero de estados del NFA, por eso el siguiente estado es m2-1)
+> Se crea una instancia de un automata (concatFA) en el cual se hace la union de los simbolos de 'a' y de 'b'. Por lo que se actualizan los simbolos del automata.
+> Se inicia el automata y se toma el siguiente estado como estado de aceptacion
+> Se crea la transicion, que parte desde el estado de aceptacion de 'a' y va hacia el estado inicial de 'b' utilizando epsilon.
+> Se guardan las transiciones de los automatas 'a' y 'b' en las transiciones de concatFA.
+> Se devuelve el automata que es la concatenacion de 'a' y 'b'
+
+handleUnion: Esta funcion toma un automata basico (a).
+> Llama la funcion actualizarEstados donde el automata 'a' empieza con 2 y guarda el resultado [a, m1]. Esto hara que a actualice sus estados y se obtenga el ultimo numero en el que termina 'a'.
+> Se crean el primer estado y al que sigue, usando 1 y m2-1 (al actualizar estados, el numero en el que terminan es n+1 donde n es el numero de estados del NFA, por eso el siguiente estado es m2-1)
+> Se crea una instancia de un automata (kleeneFA)
+> Se inicia el automata y se toma el siguiente estado como estado de aceptacion
+> Se crea una transicion que parte desde el estado inicial de kleeneFA al estado inicial del automata 'a' usando el simbolo epsilon.
+> Se crea otra transicion que parte desde el estado inicial de kleeneFA hacia el estado de aceptacion de kleeneFA usando epsilon.
+> Se crea otra transicion que parte desde el estado de aceptacion del automata 'a' hacia el estado de aceptacion de kleeneFA usando epsilon.
+> Se crea una ultima transicion que parte desde el estado de aceptacion del automata 'a' hacia el estado inicial del automata 'a' usando epsilon.
+> Se guardan las transiciones del automata 'a' en las transiciones de kleeneFA.
+> Se devuelve el automata que es la estrella de kleene del automata 'a'.
+
+
+crearNFA: esta funcion se encarga de crear el NFA a partir del regex escrito.
+> Las variables temp, prev y simbolo indican lo siguiente: temp se usa para procesar la regex, prev mantiene el caracter que YA se procesó y simbolo es el conjunto que guardará todos los símbolos del alfabeto la regex (que son casos como: a,b,0,1,etc.)
+> Se procesa la regex caracter por caracter en el loop:
+	> Si el caracter es parte del alfabeto se agrega al conjunto de simbolos
+	> Si el caracter esta en el alfabeto o es un parentesis de apertura ('('), entonces chequea que el simbolo
+	anterior no es una estrella de kleene ('*'), una concatenacion ('·') o un parentesis de cierre (')'), se le
+	agrega el operador de concatenacion a la regex
+	> Esto se hace en caso de que la concatenacion que haya sido implicita (ej.: 'ab') sea explicita (ej.: 'a·b')
+> Al procesar la regex, se aplica el algoritmo Shunting Yard para pasar la regex de infix a postfix
+
+> Ahora se crea el NFA
+	> Se crea un automata para cada simbolo u operador.
+		+ Si es un simbolo se llama handleSimbolo
+		+ Si es union se llama handleUnion
+		+ asi para las demas
+	> Estos automatas se unen en una pila llamada 'automata'
+	> Al final del loop se obtiene el NFA que se encuentra hasta arriba de la pila y se asigna a self.nfa y se le
+	actualizan los simbolos tomados anteriormente
+
+mostrarNFA: esta funcion se encarga de crear el automata como grafo usando graphviz.
+
+(Ahora se retomaran las funciones NO mencionadas de la clase Automata para entender mejor el contexto)
+
+clase Automata:
+
+actualizarEstadosIguales: Esta funcion crea un nuevo Automata para actualizar los estados
+> Se crea un ciclo anidado que va a chequear el estado fuente y los estados objetivos de las transiciones
+> El primer ciclo recorre todos los estados fuentes y el segundo recorre todos los estados objetivos para cada uno de los estados fuentes
+> En el segundo ciclo se crean las transiciones para el nuevo automata, donde se toman pos[desdeEstado] y pos[Estado] para mapear los estados originales a los nuevos estados equivalentes segun la relacion de equivalencia definida en 'pos'.
+> Luego se inicia el estado inicial del nuevo automata segun la relacion de equivalencia de 'pos'
+> Luego se itera a traves de los estados de aceptacion del automata original, para los cuales se establece un nuevo estado de aceptacion segun su relacion de equivalencia en 'pos'
+> Por ultimo devuelve el nuevo automata
+
+
+cerraduraEpsilon: se toma el estado del cual se quiera encontrar su cerradura de epsilon (findstate)
+> Se crea un bucle que corra mientras la lista estados no este vacia
+> En este bucle se extrae un estado de la lista de estados y se agrega a un conjunto con todos los estados
+> Si el estado esta como estado fuente en las transiciones, para cada estado de partida en las transiciones se chequea si epsilon es simbolo utilizado para llegar a los estados objetivos de este estado de partida y que no este en todos los estados ya guardados.
+> Devuelve todos los estados que usen epsilon
+
+getMovimiento: se toma un estado o lista de estados y el simbolo
+> Se crea un conjunto que almacenara los estados ya alcanzados
+> Luego se itera en un ciclo por cada estado en la lista de estados, si el estado es estado de partida en las transiciones, se chequea que para cada estado objetivo del estado de partida se encuentre el simbolo en esta transicion.
+> Devuelve los estados a los que se pueden alcanzar desde el conjunto de estados que se ha pasado con el simbolo 'skey'
+
+clase NFAToDFA:
+
+construirDFA:
+> Se crean dos diccionarios, uno para todos los estados y otro para los estados con sus cerraduras de epsilon
+> Se calcula la e-cerradura para el primer estado del NFA
+> Se crea el automata que tendra el DFA con los simbolos del NFA
+> Se crea una lista de estados que contendra los pares de conjuntos de estados del NFA y sus indices correspondientes al DFA.
+> Luego se inicia un loop que se ejecuta mientras la lista de estados no este vacia
+	> Se extrae un par que tiene el conjunto de estados del NFA ('state') y el indice del DFA desde el cual se
+	origino el conjunto de estados ('desdeIndex')
+	> Luego se itera cada caracter de los simbolos del DFA en el cual se evaluaran los movimientos de cada simbolo
+	usando la funcion getMovimiento
+	> Para cada estado se verifica si ya se calculo su cerradura de epsilon, si no se calcula y se agrega al
+	diccionario ecerradura
+	> Se hace la union de las ecerraduras para obtener todos los estados a los que se puede llegar desde 'state'
+	segun el caracter que se esta evaluando
+	> Si no estan vacios los estados se verifica si este estado representa un nuevo estado en el DFA o si ya se
+	verifico
+	> Si ya se verifico se obtiene su indice de allEstados y se almacena en haciaIndex
+	> Se crea una transicion en el DFA desde desdeIndex hacia haciaIndex utilizando el caracter evaluado.
+> Se verifica allEstados para ver si algun conjunto de estados contiene el estado de aceptacion del NFA, de ser asi, se marca ese como estado de aceptacion.
+> Se crea el dfa
+
+estadoRepetido: recibe estados y una posicion para los estados
+> Se inicia un contador desde 1 y un diccionario change
+> Para cada estado en estados se verifica si la posicion no esta en el diccionario de cambio
+> Si no esta presente se agrega al diccionario con el identificador del contador y se incrementa el contador
+> Luego se actualiza pos para que el estado se mapee a la nueva posicion en change. 
+
+minimizar:
+> Se crea una lista estados que contiene todos los estados del DFA.
+> Se crea un diccionario llamado haciaestado que se va a usar para almacenar las transiciones desde cada estado hacia otros estados del DFA.
+> Se iteran los estados en estados y para cada estado y cada simbolo en el alfabeto del DFA se calcula el conjunto de estados alcanzados por la función getMovimiento y se almacena en haciaestado[st][sy]. Si no hay estados alcanzados, se asigna 0.
+> Se crea un diccionario llamado equal para llevar un seguimiento de los conjuntos de estados equivalentes. Se inicializan dos conjuntos en equal con los estados de aceptación y los estados no de aceptación del DFA.
+> Se crea un diccionario pos que mapea estados a su grupo de equivalencia actual (1 o 2) basado en equal.
+> Se crea una lista llamada sinCheck que inicialmente contiene dos elementos: los conjuntos de estados de aceptación y no de aceptación junto con sus identificadores (1 y 2).
+> Se inicia un bucle while que se ejecuta mientras sinCheck no esté vacío.
+> En cada iteracion del bucle, se toma un conjunto de estados equalst y su identificador id de sinCheck.
+> Para cada símbolo en el alfabeto del DFA, se calcula el conjunto de estados alcanzados diff desde los estados en equalst y se agrupan según su grupo de equivalencia actual.
+> Si diff contiene más de un grupo de equivalencia, se realiza la partición de estados y se actualizan equal, pos, y se agrega un nuevo conjunto de estados a sinCheck para su posterior procesamiento.
+> Si después de todas las iteraciones del bucle sinCheck, la longitud de equal es igual a la longitud de estados, significa que no se pudo realizar ninguna partición adicional y el DFA ya está minimizado. En este caso, se asigna el DFA original a self.minDFA.
+> Si la longitud de equal es menor que la longitud de estados, se llama a la función estadoRepetido para actualizar los estados en estados y pos para eliminar estados repetidos.
+Finalmente, se llama a self.dfa.actualizarEstadosIguales(equal, pos) para crear un nuevo DFA minimizado basado en la partición de estados en equal y pos, y se asigna este DFA minimizado a self.minDFA.
